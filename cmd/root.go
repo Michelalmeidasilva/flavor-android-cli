@@ -4,6 +4,7 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"android-cli/cmd/helper"
 	"fmt"
 	"os"
 
@@ -33,6 +34,7 @@ var (
 	APP_KEY_STORE_PASSWORD string
 	APP_NAME               string
 	DEEP_LINKING_TAG       string
+	PACKAGE_SRC            string
 )
 
 var androidFlavorCmd = &cobra.Command{
@@ -54,16 +56,24 @@ var androidFlavorCmd = &cobra.Command{
 		Validate a correct android folder ( maybe build.gradle or others files to validate if its correct)
 		*/
 		if args[0] != "" {
-			fmt.Println("path to android folder", args[0])
+			var pathToAndroidFolder = args[0]
+
+			var buildGradlePath = pathToAndroidFolder + "/app/build.gradle"
+			if helper.FileExists(pathToAndroidFolder + "/app/build.gradle") {
+				fmt.Println("file exists", args[0])
+
+				var sourceFolderToCopy = pathToAndroidFolder + "/app/src/example"
+				var destination = pathToAndroidFolder + "/app/src/" + APP_FLAVOR
+
+				productFlavor := fmt.Sprintf("\n\t\t%s  \t{\n\t\t\tdimension \"brand\"\n\t\t\tapplicationId \"%s\"\n\t\t\tresValue \"string\", \"build_config_package\", \"%s\"\n\t\t}\n", APP_FLAVOR, BUNDLE_ID, PACKAGE_SRC)
+
+				helper.AppendFlavorBuildGradle(productFlavor, buildGradlePath)
+				helper.CopyFlavorFolder(sourceFolderToCopy, destination, APP_FLAVOR, DEEP_LINKING_TAG)
+			} else {
+				fmt.Println("Error")
+			}
+
 		}
-		fmt.Println(APP_FLAVOR)
-		fmt.Println(BUNDLE_ID)
-		fmt.Println(BUILD_OUTPUT_TYPE)
-		fmt.Println(APP_KEY_ALIAS)
-		fmt.Println(APP_KEY_PASSWORD)
-		fmt.Println(APP_KEY_STORE_PASSWORD)
-		fmt.Println(APP_NAME)
-		fmt.Println(DEEP_LINKING_TAG)
 
 	},
 	Example: `
@@ -98,6 +108,7 @@ func init() {
 	androidFlavorCmd.Flags().StringVar(&APP_KEY_STORE_PASSWORD, "APP_KEY_STORE_PASSWORD", "", "The password for the key store file that contains the signing key. The key store file is used to securely store the signing key and protect it from unauthorized access.")
 	androidFlavorCmd.Flags().StringVar(&APP_NAME, "APP_NAME", "", "The name of the Android application. It is a user-friendly name that is displayed to users when they interact with the app.")
 	androidFlavorCmd.Flags().StringVar(&DEEP_LINKING_TAG, "DEEP_LINKING_TAG", "", "Deep linking allows users to navigate directly to specific screens or content within an app. The --DEEP_LINKING_TAG flag specifies a tag or identifier associated with a deep link, which can be used to handle deep link URLs within the Android application.")
+	androidFlavorCmd.Flags().StringVar(&PACKAGE_SRC, "PACKAGE_SRC", "", "  ")
 
 	androidFlavorCmd.MarkFlagRequired("APP_FLAVOR")
 	androidFlavorCmd.MarkFlagRequired("BUNDLE_ID")
@@ -107,6 +118,7 @@ func init() {
 	androidFlavorCmd.MarkFlagRequired("APP_KEY_STORE_PASSWORD")
 	androidFlavorCmd.MarkFlagRequired("APP_NAME")
 	androidFlavorCmd.MarkFlagRequired("DEEP_LINKING_TAG")
+	androidFlavorCmd.MarkFlagRequired("PACKAGE_SRC")
 
 	rootCmd.AddCommand(androidFlavorCmd)
 
