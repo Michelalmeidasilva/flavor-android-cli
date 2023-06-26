@@ -59,7 +59,7 @@ func NewAndroidFlavor(args []string) {
 
 		var buildGradlePath = pathToAndroidFolder + "/app/build.gradle"
 
-		if helper.FileExists(pathToAndroidFolder + "/app/build.gradle") {
+		if helper.FileExists(buildGradlePath) {
 			var sourceFolderToCopy = pathToAndroidFolder + "/app/src/example"
 			var destination = pathToAndroidFolder + "/app/src/" + APP_FLAVOR
 			var keystorePath = pathToAndroidFolder + "/app/keystores/"
