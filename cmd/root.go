@@ -1,5 +1,5 @@
 /*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
+Copyright © 2023 Michel Almeida da Silva
 */
 package cmd
 
@@ -11,18 +11,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:     "android-cli",
 	Version: "0.0.1",
 	Short:   "This is a CLI for create a new ProductFlavor at Android project",
-	Long: `
-		A longer description that spans multiple lines and likely contains
-		examples and usage of using your application. For example:
-		Cobra is a CLI library for Go that empowers applications.
-		This application is a tool to generate the needed files
-		to quickly create a Cobra application.
-	`,
 }
 
 var (
@@ -35,6 +27,7 @@ var (
 	APP_NAME               string
 	DEEP_LINKING_TAG       string
 	PACKAGE_SRC            string
+	ICON_LAUNCHER_PATH     string
 )
 
 var androidFlavorCmd = &cobra.Command{
@@ -51,29 +44,8 @@ var androidFlavorCmd = &cobra.Command{
 	Aliases: []string{"new-flavor"},
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-
-		/**
-		Validate a correct android folder ( maybe build.gradle or others files to validate if its correct)
-		*/
-		if args[0] != "" {
-			var pathToAndroidFolder = args[0]
-
-			var buildGradlePath = pathToAndroidFolder + "/app/build.gradle"
-			if helper.FileExists(pathToAndroidFolder + "/app/build.gradle") {
-				fmt.Println("file exists", args[0])
-
-				var sourceFolderToCopy = pathToAndroidFolder + "/app/src/example"
-				var destination = pathToAndroidFolder + "/app/src/" + APP_FLAVOR
-
-				productFlavor := fmt.Sprintf("\n\t\t%s  \t{\n\t\t\tdimension \"brand\"\n\t\t\tapplicationId \"%s\"\n\t\t\tresValue \"string\", \"build_config_package\", \"%s\"\n\t\t}\n", APP_FLAVOR, BUNDLE_ID, PACKAGE_SRC)
-
-				helper.AppendFlavorBuildGradle(productFlavor, buildGradlePath)
-				helper.CopyFlavorFolder(sourceFolderToCopy, destination, APP_FLAVOR, DEEP_LINKING_TAG)
-			} else {
-				fmt.Println("Error")
-			}
-
-		}
+		/*Validate a correct android folder ( maybe build.gradle or others files to validate if its correct)*/
+		NewAndroidFlavor(args)
 
 	},
 	Example: `
@@ -81,8 +53,45 @@ var androidFlavorCmd = &cobra.Command{
 - create-android-flavor path/to/android-folder  --BUNDLE_ID="com.example.facebook" --APP_FLAVOR="facebook" --BUILD_OUTPUT_TYPE="AAB" --APP_KEY_ALIAS="my-key-alias" --APP_KEY_PASSWORD="my-password" --APP_KEY_STORE_PASSWORD="my-app-keystore-password" --APP_NAME="facebook" --DEEP_LINKING_TAG="facebookApp-8574"`,
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
+func NewAndroidFlavor(args []string) {
+	if args[0] != "" {
+		var pathToAndroidFolder = args[0]
+
+		var buildGradlePath = pathToAndroidFolder + "/app/build.gradle"
+
+		if helper.FileExists(pathToAndroidFolder + "/app/build.gradle") {
+			var sourceFolderToCopy = pathToAndroidFolder + "/app/src/example"
+			var destination = pathToAndroidFolder + "/app/src/" + APP_FLAVOR
+			var keystorePath = pathToAndroidFolder + "/app/keystores/"
+			var fastlaneVariables = []helper.Enviroment{
+				{Name: "APP_FLAVOR", Value: APP_FLAVOR},
+				{Name: "BUNDLE_ID", Value: BUNDLE_ID},
+				{Name: "ENVIRONMENT", Value: "production"},
+				{Name: "BUILD_OUTPUT_TYPE", Value: BUILD_OUTPUT_TYPE},
+				{Name: "APP_KEY_ALIAS", Value: APP_KEY_ALIAS},
+				{Name: "APP_KEY_PASSWORD", Value: APP_KEY_PASSWORD},
+				{Name: "APP_KEY_STORE_PASSWORD", Value: APP_KEY_STORE_PASSWORD},
+				{Name: "LOGIN_USERNAME", Value: ""},
+				{Name: "LOGIN_PASSWORD", Value: ""},
+				{Name: "CLASS_DEEP_LINK_TESTS", Value: ""},
+				{Name: "INSTRUMENTED_TESTS", Value: "disabled"},
+			}
+
+			productFlavor := fmt.Sprintf("\n\t\t%s  \t{\n\t\t\tdimension \"brand\"\n\t\t\tapplicationId \"%s\"\n\t\t\tresValue \"string\", \"build_config_package\", \"%s\"\n\t\t}\n", APP_FLAVOR, BUNDLE_ID, PACKAGE_SRC)
+
+			helper.AppendFlavorBuildGradle(productFlavor, buildGradlePath)
+			helper.CopyFlavorFolder(sourceFolderToCopy, destination, APP_FLAVOR, DEEP_LINKING_TAG)
+			helper.ResizeImage(ICON_LAUNCHER_PATH, destination+"/res/")
+			helper.GenerateKeystore(keystorePath+APP_FLAVOR+".keystore", APP_KEY_ALIAS, APP_KEY_PASSWORD, APP_KEY_STORE_PASSWORD)
+			helper.AppendEnvAtFastlane(pathToAndroidFolder+"/fastlane/.env", fastlaneVariables)
+
+		} else {
+			fmt.Println("Error")
+		}
+
+	}
+}
+
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
@@ -91,15 +100,6 @@ func Execute() {
 }
 
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.android-cli.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-
 	androidFlavorCmd.Flags().StringVar(&APP_FLAVOR, "APP_FLAVOR", "", "Android flavors allow you to create different variants of your application, typically used for different environments (e.g., development, staging, production). The --APP_FLAVOR flag specifies the flavor of the application to build.")
 	androidFlavorCmd.Flags().StringVar(&BUNDLE_ID, "BUNDLE_ID", "", "The bundle ID (also known as package name) uniquely identifies an Android application. It is typically in reverse domain name format (e.g., com.example.myapp)")
 	androidFlavorCmd.Flags().StringVar(&BUILD_OUTPUT_TYPE, "BUILD_OUTPUT_TYPE", "APK", "This flag determines the type of build output for the Android application. it can be APK or AAB")
@@ -108,7 +108,8 @@ func init() {
 	androidFlavorCmd.Flags().StringVar(&APP_KEY_STORE_PASSWORD, "APP_KEY_STORE_PASSWORD", "", "The password for the key store file that contains the signing key. The key store file is used to securely store the signing key and protect it from unauthorized access.")
 	androidFlavorCmd.Flags().StringVar(&APP_NAME, "APP_NAME", "", "The name of the Android application. It is a user-friendly name that is displayed to users when they interact with the app.")
 	androidFlavorCmd.Flags().StringVar(&DEEP_LINKING_TAG, "DEEP_LINKING_TAG", "", "Deep linking allows users to navigate directly to specific screens or content within an app. The --DEEP_LINKING_TAG flag specifies a tag or identifier associated with a deep link, which can be used to handle deep link URLs within the Android application.")
-	androidFlavorCmd.Flags().StringVar(&PACKAGE_SRC, "PACKAGE_SRC", "", "  ")
+	androidFlavorCmd.Flags().StringVar(&PACKAGE_SRC, "PACKAGE_SRC", "", "")
+	androidFlavorCmd.Flags().StringVar(&ICON_LAUNCHER_PATH, "ICON_LAUNCHER_PATH", "", "")
 
 	androidFlavorCmd.MarkFlagRequired("APP_FLAVOR")
 	androidFlavorCmd.MarkFlagRequired("BUNDLE_ID")
