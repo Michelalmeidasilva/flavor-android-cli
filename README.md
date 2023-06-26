@@ -1,10 +1,8 @@
+## CLI para criar uma nova "flavor" de Android
 
-
-
-CLI para criar uma nova "flavor" de Android
 Esta CLI (Interface de Linha de Comando) foi desenvolvida em Go e possui o objetivo de facilitar a criação de uma nova "flavor" (sabor) para um aplicativo Android. Ela fornece um comando chamado create-android-flavor (ou new-flavor como um alias) que aceita uma série de flags para configurar a nova flavor.
 
-Como usar
+## Como usar
 Para utilizar a CLI, execute o comando create-android-flavor seguido do caminho do diretório do projeto Android e das flags necessárias. A seguir estão as flags disponíveis para configuração:
 
 --BUNDLE_ID: O ID do pacote do aplicativo Android (bundle ID).
@@ -17,7 +15,8 @@ Para utilizar a CLI, execute o comando create-android-flavor seguido do caminho 
 --DEEP_LINKING_TAG: A tag de "deep linking" do aplicativo.
 --PACKAGE_SRC: O pacote de origem do aplicativo.
 --ICON_LAUNCHER_PATH: O caminho para o ícone de lançamento do aplicativo.
-Funcionalidade
+
+## Funcionalidade
 Ao executar o comando create-android-flavor, a CLI irá validar se o diretório do projeto Android fornecido é válido. Essa validação pode envolver a verificação de arquivos como o build.gradle ou outros arquivos relevantes para garantir que o diretório esteja correto e pronto para a criação da nova flavor.
 
 Uma vez validado o diretório, a CLI irá prosseguir para criar a nova flavor. Essa criação pode envolver várias etapas, como:
@@ -30,7 +29,7 @@ Configuração do nome do aplicativo e da tag de "deep linking" para a nova flav
 Configuração do pacote de origem e do ícone de lançamento do aplicativo para a nova flavor.
 Após a conclusão dessas etapas, a nova flavor estará pronta para ser utilizada e compilada dentro do projeto Android.
 
-Exemplo de Uso
+## Exemplo de Uso
 Aqui está um exemplo de como utilizar a CLI para gerar uma nova flavor de aplicativo com um ícone e keystore personalizados:
 
 
