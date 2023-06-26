@@ -44,9 +44,7 @@ var androidFlavorCmd = &cobra.Command{
 	Aliases: []string{"new-flavor"},
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		/*Validate a correct android folder ( maybe build.gradle or others files to validate if its correct)*/
 		NewAndroidFlavor(args)
-
 	},
 	Example: `
 1. Generate a new flavor app with icon and keystore:
