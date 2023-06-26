@@ -49,8 +49,8 @@ var androidFlavorCmd = &cobra.Command{
 
 	},
 	Example: `
-1. Generate a new flavor app:
-- create-android-flavor path/to/android-folder  --BUNDLE_ID="com.example.facebook" --APP_FLAVOR="facebook" --BUILD_OUTPUT_TYPE="AAB" --APP_KEY_ALIAS="my-key-alias" --APP_KEY_PASSWORD="my-password" --APP_KEY_STORE_PASSWORD="my-app-keystore-password" --APP_NAME="facebook" --DEEP_LINKING_TAG="facebookApp-8574"`,
+1. Generate a new flavor app with icon and keystore:
+- create-android-flavor ./examples/android --BUNDLE_ID="com.example.facebook" --APP_FLAVOR="facebook" --BUILD_OUTPUT_TYPE="AAB" --APP_KEY_ALIAS="my-key-alias" --APP_KEY_PASSWORD="my-password" --APP_KEY_STORE_PASSWORD="my-app-keystore-password" --APP_NAME="facebook" --DEEP_LINKING_TAG="facebookApp-8574" --PACKAGE_SRC="com.example" --ICON_LAUNCHER_PATH="examples/icone.png"`,
 }
 
 func NewAndroidFlavor(args []string) {
