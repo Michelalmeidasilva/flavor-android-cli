@@ -1,4 +1,4 @@
-package helper
+package helpers
 
 import (
 	"fmt"
@@ -16,11 +16,14 @@ type ImageParameters struct {
 }
 
 func ResizeImage(iconPath string, androidPathResources string) {
+	if iconPath == "" {
+		return
+	}
 
 	// Abrir o arquivo da imagem de entrada original
 	originalFile, err := os.Open(iconPath)
 	if err != nil {
-		fmt.Println("Erro ao abrir a imagem original:", err)
+		fmt.Println("Erro ao abrir a imagem original no path informado", err)
 		return
 	}
 	defer originalFile.Close()

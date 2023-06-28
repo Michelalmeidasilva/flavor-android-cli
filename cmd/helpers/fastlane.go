@@ -1,4 +1,4 @@
-package helper
+package helpers
 
 import (
 	"fmt"
@@ -10,17 +10,16 @@ type Enviroment struct {
 	Value string
 }
 
-func AppendEnvAtFastlane(envPath string, envs []Enviroment) {
-
+func AppendEnvAtFastlane(envPath string, envs map[string]string) {
 	if !FileExists(envPath) {
 		fmt.Println("Create a .env fastlane file and add manually the envs")
 		return
 	}
 
-	var content = "#" + envs[0].Value + "\n"
+	var content = "#" + envs["APP_NAME"] + "\n"
 
-	for _, value := range envs {
-		content += value.Name + "=" + value.Value + "\n"
+	for key, value := range envs {
+		content += key + "=" + value + "\n"
 	}
 
 	// Open the file in append mode, create if it doesn't exist

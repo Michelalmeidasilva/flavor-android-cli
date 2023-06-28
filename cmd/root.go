@@ -4,18 +4,11 @@ Copyright © 2023 Michel Almeida da Silva
 package cmd
 
 import (
-	"android-cli/cmd/helper"
-	"fmt"
+	"android-cli/cmd/android"
 	"os"
 
 	"github.com/spf13/cobra"
 )
-
-var rootCmd = &cobra.Command{
-	Use:     "android-cli",
-	Version: "0.0.1",
-	Short:   "This is a CLI for create a new ProductFlavor at Android project",
-}
 
 var (
 	BUNDLE_ID              string
@@ -29,6 +22,12 @@ var (
 	PACKAGE_SRC            string
 	ICON_LAUNCHER_PATH     string
 )
+
+var rootCmd = &cobra.Command{
+	Use:     "android-cli",
+	Version: "0.0.1",
+	Short:   "This is a CLI for create a new ProductFlavor at Android project",
+}
 
 var androidFlavorCmd = &cobra.Command{
 	Use: "create-android-flavor",
@@ -44,50 +43,24 @@ var androidFlavorCmd = &cobra.Command{
 	Aliases: []string{"new-flavor"},
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		NewAndroidFlavor(args)
+		environmentVariables := map[string]string{
+			"BUNDLE_ID":              BUNDLE_ID,
+			"APP_FLAVOR":             APP_FLAVOR,
+			"BUILD_OUTPUT_TYPE":      BUILD_OUTPUT_TYPE,
+			"APP_KEY_ALIAS":          APP_KEY_ALIAS,
+			"APP_KEY_PASSWORD":       APP_KEY_PASSWORD,
+			"APP_KEY_STORE_PASSWORD": APP_KEY_STORE_PASSWORD,
+			"APP_NAME":               APP_NAME,
+			"DEEP_LINKING_TAG":       DEEP_LINKING_TAG,
+			"PACKAGE_SRC":            PACKAGE_SRC,
+			"ICON_LAUNCHER_PATH":     ICON_LAUNCHER_PATH,
+		}
+
+		android.NewAndroidFlavor(environmentVariables, args[0])
 	},
 	Example: `
 1. Generate a new flavor app with icon and keystore:
 - create-android-flavor ./examples/android --BUNDLE_ID="com.example.facebook" --APP_FLAVOR="facebook" --BUILD_OUTPUT_TYPE="AAB" --APP_KEY_ALIAS="my-key-alias" --APP_KEY_PASSWORD="my-password" --APP_KEY_STORE_PASSWORD="my-app-keystore-password" --APP_NAME="facebook" --DEEP_LINKING_TAG="facebookApp-8574" --PACKAGE_SRC="com.example" --ICON_LAUNCHER_PATH="examples/icone.png"`,
-}
-
-func NewAndroidFlavor(args []string) {
-	if args[0] != "" {
-		var pathToAndroidFolder = args[0]
-
-		var buildGradlePath = pathToAndroidFolder + "/app/build.gradle"
-
-		if helper.FileExists(buildGradlePath) {
-			var sourceFolderToCopy = pathToAndroidFolder + "/app/src/example"
-			var destination = pathToAndroidFolder + "/app/src/" + APP_FLAVOR
-			var keystorePath = pathToAndroidFolder + "/app/keystores/"
-			var fastlaneVariables = []helper.Enviroment{
-				{Name: "APP_FLAVOR", Value: APP_FLAVOR},
-				{Name: "BUNDLE_ID", Value: BUNDLE_ID},
-				{Name: "ENVIRONMENT", Value: "production"},
-				{Name: "BUILD_OUTPUT_TYPE", Value: BUILD_OUTPUT_TYPE},
-				{Name: "APP_KEY_ALIAS", Value: APP_KEY_ALIAS},
-				{Name: "APP_KEY_PASSWORD", Value: APP_KEY_PASSWORD},
-				{Name: "APP_KEY_STORE_PASSWORD", Value: APP_KEY_STORE_PASSWORD},
-				{Name: "LOGIN_USERNAME", Value: ""},
-				{Name: "LOGIN_PASSWORD", Value: ""},
-				{Name: "CLASS_DEEP_LINK_TESTS", Value: ""},
-				{Name: "INSTRUMENTED_TESTS", Value: "disabled"},
-			}
-
-			productFlavor := fmt.Sprintf("\n\t\t%s  \t{\n\t\t\tdimension \"brand\"\n\t\t\tapplicationId \"%s\"\n\t\t\tresValue \"string\", \"build_config_package\", \"%s\"\n\t\t}\n", APP_FLAVOR, BUNDLE_ID, PACKAGE_SRC)
-
-			helper.AppendFlavorBuildGradle(productFlavor, buildGradlePath)
-			helper.CopyFlavorFolder(sourceFolderToCopy, destination, APP_FLAVOR, DEEP_LINKING_TAG)
-			helper.ResizeImage(ICON_LAUNCHER_PATH, destination+"/res/")
-			helper.GenerateKeystore(keystorePath+APP_FLAVOR+".keystore", APP_KEY_ALIAS, APP_KEY_PASSWORD, APP_KEY_STORE_PASSWORD)
-			helper.AppendEnvAtFastlane(pathToAndroidFolder+"/fastlane/.env", fastlaneVariables)
-
-		} else {
-			fmt.Println("Error")
-		}
-
-	}
 }
 
 func Execute() {
@@ -107,7 +80,7 @@ func init() {
 	androidFlavorCmd.Flags().StringVar(&APP_NAME, "APP_NAME", "", "The name of the Android application. It is a user-friendly name that is displayed to users when they interact with the app.")
 	androidFlavorCmd.Flags().StringVar(&DEEP_LINKING_TAG, "DEEP_LINKING_TAG", "", "Deep linking allows users to navigate directly to specific screens or content within an app. The --DEEP_LINKING_TAG flag specifies a tag or identifier associated with a deep link, which can be used to handle deep link URLs within the Android application.")
 	androidFlavorCmd.Flags().StringVar(&PACKAGE_SRC, "PACKAGE_SRC", "", "")
-	androidFlavorCmd.Flags().StringVar(&ICON_LAUNCHER_PATH, "ICON_LAUNCHER_PATH", "", "")
+	androidFlavorCmd.Flags().StringVar(&ICON_LAUNCHER_PATH, "ICON_LAUNCHER_PATH", "", "Path to image.png to generate a image")
 
 	androidFlavorCmd.MarkFlagRequired("APP_FLAVOR")
 	androidFlavorCmd.MarkFlagRequired("BUNDLE_ID")
