@@ -9,18 +9,18 @@ import (
 	"github.com/nfnt/resize"
 )
 
-type ImageParameters struct {
+type ImageAndroid struct {
 	size             uint
 	nameDrawablePath string
 	nameMipMapPath   string
 }
 
-func ResizeImage(iconPath string, androidPathResources string) {
-	if iconPath == "" {
+func ResizeImage(originalImagePath string, androidPathResources string, images []ImageAndroid) {
+	if originalImagePath == "" {
 		return
 	}
 
-	originalFile, err := os.Open(iconPath)
+	originalFile, err := os.Open(originalImagePath)
 	if err != nil {
 		fmt.Println("Erro ao abrir a imagem original no path informado", err)
 		return
@@ -33,13 +33,6 @@ func ResizeImage(iconPath string, androidPathResources string) {
 		return
 	}
 
-	images := []ImageParameters{
-		{size: 48, nameDrawablePath: "drawable-mdpi", nameMipMapPath: "mipmap-mdpi"},
-		{size: 72, nameDrawablePath: "drawable-hdpi", nameMipMapPath: "mipmap-hdpi"},
-		{size: 96, nameDrawablePath: "drawable-xhdpi", nameMipMapPath: "mipmap-xhdpi"},
-		{size: 144, nameDrawablePath: "drawable-xxhdpi", nameMipMapPath: "mipmap-xxhdpi"},
-		{size: 240, nameDrawablePath: "drawable-xxxhdpi", nameMipMapPath: "mipmap-xxxhdpi"},
-	}
 	for _, image := range images {
 		resizedImage := resize.Resize(image.size, image.size, originalImage, resize.Lanczos3)
 
@@ -65,5 +58,17 @@ func CreateImage(value image.Image, size uint, imageName string, path string) {
 		fmt.Println("Erro ao codificar a cópia em PNG:", err)
 		return
 	}
+}
 
+func CreateAndroidImages(originalImage string, androidPath string) {
+
+	images := []ImageAndroid{
+		{size: 48, nameDrawablePath: "drawable-mdpi", nameMipMapPath: "mipmap-mdpi"},
+		{size: 72, nameDrawablePath: "drawable-hdpi", nameMipMapPath: "mipmap-hdpi"},
+		{size: 96, nameDrawablePath: "drawable-xhdpi", nameMipMapPath: "mipmap-xhdpi"},
+		{size: 144, nameDrawablePath: "drawable-xxhdpi", nameMipMapPath: "mipmap-xxhdpi"},
+		{size: 240, nameDrawablePath: "drawable-xxxhdpi", nameMipMapPath: "mipmap-xxxhdpi"},
+	}
+
+	ResizeImage(originalImage, androidPath, images)
 }

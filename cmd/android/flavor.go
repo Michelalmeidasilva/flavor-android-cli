@@ -9,6 +9,10 @@ import (
 	"strings"
 )
 
+type Environments struct {
+	category map[string]helpers.Enviroment
+}
+
 func AppendFlavorBuildGradle(buildGradlePath string, environmentVariables map[string]string) error {
 	destinationContent, err := os.ReadFile(buildGradlePath)
 
@@ -58,10 +62,6 @@ func CopyFlavorFolder(sourceFolder string, destinationFolder string, appFlavor s
 	})
 }
 
-type Environments struct {
-	category map[string]helpers.Enviroment
-}
-
 func NewAndroidFlavor(environmentVariables map[string]string, pathToAndroidFolder string) {
 	if pathToAndroidFolder != "" {
 		var buildGradlePath = pathToAndroidFolder + "/app/build.gradle"
@@ -75,7 +75,7 @@ func NewAndroidFlavor(environmentVariables map[string]string, pathToAndroidFolde
 		CopyFlavorFolder(sourceFolderToCopy, destination, appFlavor, environmentVariables["DEEP_LINKING_TAG"])
 		GenerateKeystore(keystorePath+environmentVariables["APP_FLAVOR"]+".keystore", environmentVariables["APP_KEY_ALIAS"], environmentVariables["APP_KEY_PASSWORD"], environmentVariables["APP_KEY_STORE_PASSWORD"])
 		helpers.AppendEnvAtFastlane(pathToAndroidFolder+"/fastlane/.env", environmentVariables)
-		helpers.ResizeImage(environmentVariables["ICON_LAUNCHER_PATH"], destination+"/res/")
+		helpers.CreateAndroidImages(environmentVariables["ICON_LAUNCHER_PATH"], destination+"/res/")
 
 	} else {
 		fmt.Printf("You need to provide a android path as first argument")
