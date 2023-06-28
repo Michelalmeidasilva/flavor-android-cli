@@ -1,8 +1,11 @@
 package helpers
 
 import (
+	"bufio"
 	"fmt"
+	"log"
 	"os"
+	"strings"
 )
 
 type Enviroment struct {
@@ -12,7 +15,7 @@ type Enviroment struct {
 
 func AppendEnvAtFastlane(envPath string, envs map[string]string) {
 	if !FileExists(envPath) {
-		fmt.Println("Create a .env fastlane file and add manually the envs")
+		fmt.Println("Create a .env fastlane before, or add manually the envs")
 		return
 	}
 
@@ -37,5 +40,30 @@ func AppendEnvAtFastlane(envPath string, envs map[string]string) {
 		return
 	}
 
-	fmt.Println("Envs adicionadas no final do arquivo .env" + envPath)
+	fmt.Println("Envs adicionadas no final do arquivo .env, localizado em: " + Message(envPath, "yellow") + "\n")
+}
+
+func ConfirmEnvironmentVariables(environmentVariables map[string]string) {
+
+	fmt.Println(Message("Before proceeding, please review the values of these environment variables carefully:\n", "blue"))
+	for key, value := range environmentVariables {
+		fmt.Println(key + "=" + Message(value, "yellow"))
+
+	}
+	fmt.Println(Message("\nAre the environment variables correctly? (Y/N):", "blue"))
+
+	fmt.Print()
+	reader := bufio.NewReader(os.Stdin)
+	line, err := reader.ReadString('\n')
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var value = strings.TrimSuffix(line, "\n")
+	if strings.EqualFold(value, "y") {
+		return
+	} else {
+		os.Exit(0)
+	}
+
 }

@@ -1,12 +1,18 @@
 package android
 
 import (
+	"android-cli/cmd/helpers"
 	"fmt"
 	"log"
 	"os/exec"
 )
 
 func GenerateKeystore(appFlavor string, keyAlias string, keyPassword string, keystorePassword string) {
+
+	if helpers.FileExists(appFlavor) {
+		log.Fatalln(helpers.Message("Error generating keystore file, this path '"+appFlavor+"' already exists a file with this name.", "red"))
+		// os.Exit(1)
+	}
 	dname := "CN=, OU=, O=, L=, ST=, C="
 
 	cmd := exec.Command("keytool",
@@ -22,13 +28,11 @@ func GenerateKeystore(appFlavor string, keyAlias string, keyPassword string, key
 		"-dname", dname,
 	)
 
-	fmt.Printf("cmd: %v\n", cmd)
-
 	err := cmd.Run()
 	if err != nil {
 		log.Fatalf("Error to create keystore, verify your environment variables.")
 	} else {
-		fmt.Println("Keystore sucessfully created!")
+		fmt.Println("Keystore sucessfully created at following path:" + helpers.Message(appFlavor, "yellow") + "\n")
 
 	}
 

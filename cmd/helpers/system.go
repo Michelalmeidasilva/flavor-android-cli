@@ -10,6 +10,8 @@ import (
 )
 
 func CopyFolder(sourceFolder string, destinationFolder string, executeFileOperation func(content []byte, fileName string) []byte) error {
+	fmt.Println("\nArquivos criados em:")
+
 	err := filepath.Walk(sourceFolder, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -27,7 +29,9 @@ func CopyFolder(sourceFolder string, destinationFolder string, executeFileOperat
 			if err != nil {
 				return err
 			}
+
 		} else {
+
 			sourceFile, err := os.Open(path)
 			if err != nil {
 				return err
@@ -56,6 +60,8 @@ func CopyFolder(sourceFolder string, destinationFolder string, executeFileOperat
 				var fileName = destinationFile.Name()[strings.LastIndex(destinationFile.Name(), "/")+1:]
 				var modifiedContent = executeFileOperation(destinationContent, fileName)
 
+				fmt.Println("\t" + Message(destinationPath, "yellow"))
+
 				err = ioutil.WriteFile(destinationPath, []byte(modifiedContent), 0644)
 
 				if err != nil {
@@ -74,6 +80,8 @@ func CopyFolder(sourceFolder string, destinationFolder string, executeFileOperat
 		return err
 	}
 
+	fmt.Println("")
+
 	return nil
 }
 
@@ -83,4 +91,25 @@ func FileExists(path string) bool {
 	} else {
 		return false
 	}
+}
+
+func Message(message string, color string) string {
+	var Yellow = "\033[33m"
+	var Reset = "\033[0m"
+	var Blue = "\033[34m"
+	var Red = "\033[31m"
+
+	if color == "yellow" {
+		return (Yellow + message + Reset)
+	}
+
+	if color == "blue" {
+		return (Blue + message + Reset)
+	}
+
+	if color == "red" {
+		return (Red + message + Reset)
+	}
+
+	return message
 }

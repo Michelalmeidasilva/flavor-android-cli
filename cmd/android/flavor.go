@@ -37,13 +37,15 @@ func AppendFlavorBuildGradle(buildGradlePath string, environmentVariables map[st
 		return err
 	}
 
+	fmt.Println("\nBuild.gradle was modified and was added the following lines:")
+	fmt.Println(helpers.Message(productFlavor, "yellow"))
 	return nil
 
 }
 
 func CopyFlavorFolder(sourceFolder string, destinationFolder string, appFlavor string, deepLinking string) error {
-
 	return helpers.CopyFolder(sourceFolder, destinationFolder, func(content []byte, fileName string) []byte {
+
 		var newContent string = string(content)
 		switch fileName {
 		case "AndroidManifest.xml":
@@ -71,6 +73,9 @@ func NewAndroidFlavor(environmentVariables map[string]string, pathToAndroidFolde
 		var appFlavor = environmentVariables["APP_FLAVOR"]
 
 		//Implementar uma FSM e adicionar passo a passo, ver como fazer a leitura do usuário
+
+		helpers.ConfirmEnvironmentVariables(environmentVariables)
+
 		AppendFlavorBuildGradle(buildGradlePath, environmentVariables)
 		CopyFlavorFolder(sourceFolderToCopy, destination, appFlavor, environmentVariables["DEEP_LINKING_TAG"])
 		GenerateKeystore(keystorePath+environmentVariables["APP_FLAVOR"]+".keystore", environmentVariables["APP_KEY_ALIAS"], environmentVariables["APP_KEY_PASSWORD"], environmentVariables["APP_KEY_STORE_PASSWORD"])

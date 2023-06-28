@@ -40,7 +40,7 @@ func ResizeImage(originalImagePath string, androidPathResources string, images [
 		CreateImage(resizedImage, image.size, "launcher_ic.png", androidPathResources+image.nameMipMapPath)
 	}
 
-	fmt.Println("Images created at path:", androidPathResources)
+	fmt.Println("Images created at following path:" + Message(androidPathResources, "yellow") + "\n")
 
 }
 
