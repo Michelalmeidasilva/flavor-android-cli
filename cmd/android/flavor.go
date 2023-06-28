@@ -4,6 +4,7 @@ import (
 	"android-cli/cmd/helpers"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"strings"
 )
@@ -12,8 +13,7 @@ func AppendFlavorBuildGradle(buildGradlePath string, environmentVariables map[st
 	destinationContent, err := os.ReadFile(buildGradlePath)
 
 	if err != nil {
-		fmt.Println("android/app/build.gradle  doesn't not exists", err)
-		return err
+		log.Fatal(err, ", please verify your flag values.")
 	}
 
 	productFlavor := fmt.Sprintf("\n\t\t%s  \t{\n\t\t\tdimension \"brand\"\n\t\t\tapplicationId \"%s\"\n\t\t\tresValue \"string\", \"build_config_package\", \"%s\"\n\t\t}\n", environmentVariables["APP_FLAVOR"], environmentVariables["BUNDLE_ID"], environmentVariables["PACKAGE_SRC"])
@@ -64,7 +64,6 @@ type Environments struct {
 
 func NewAndroidFlavor(environmentVariables map[string]string, pathToAndroidFolder string) {
 	if pathToAndroidFolder != "" {
-
 		var buildGradlePath = pathToAndroidFolder + "/app/build.gradle"
 		var sourceFolderToCopy = pathToAndroidFolder + "/app/src/example"
 		var destination = pathToAndroidFolder + "/app/src/" + environmentVariables["APP_FLAVOR"]
@@ -79,6 +78,6 @@ func NewAndroidFlavor(environmentVariables map[string]string, pathToAndroidFolde
 		helpers.ResizeImage(environmentVariables["ICON_LAUNCHER_PATH"], destination+"/res/")
 
 	} else {
-		fmt.Printf("You need to provide a android path")
+		fmt.Printf("You need to provide a android path as first argument")
 	}
 }

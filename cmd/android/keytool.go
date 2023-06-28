@@ -26,8 +26,10 @@ func GenerateKeystore(appFlavor string, keyAlias string, keyPassword string, key
 
 	err := cmd.Run()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error to create keystore, verify your environment variables.")
+	} else {
+		fmt.Println("Keystore sucessfully created!")
+
 	}
 
-	fmt.Println("Keystore gerada com sucesso!")
 }
